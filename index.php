@@ -188,7 +188,7 @@ class Index
       exit (0);
     }
 
-    $file = @fopen ($cloudfront, 'rb');
+    $file = @fopen ($origin_loc, 'rb');
 
     if ($file)
     {
@@ -201,14 +201,14 @@ class Index
         $pos = strpos ($http_response_header[0], '408');
         if ($pos)
         {
-          $file = @fopen ($cloudfront, 'rb'); if ($file) Index::fetchFile ($tmp_target, $target, $file);
+          $file = @fopen ($origin_loc, 'rb'); if ($file) Index::fetchFile ($tmp_target, $target, $file);
         }
         else
         {
             $pos = strpos ($http_response_header[0], '504');
             if ($pos)
             {
-              $file = @fopen ($cloudfront, 'rb'); if ($file)  Index::fetchFile ($tmp_target, $target, $file);
+              $file = @fopen ($origin_loc, 'rb'); if ($file)  Index::fetchFile ($tmp_target, $target, $file);
             }
         }
        // --- 
