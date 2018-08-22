@@ -1,0 +1,57 @@
+server {
+  listen 80 cdn;
+  listen [::]:80 cdn;
+  server_name _;
+  return 301 https://$host$request_uri;
+}
+
+server {
+  listen   443 http2;
+  server_name  cdn;
+  # access_log  /var/log/nginx/cdn.log;
+  # access_log off;
+
+  chunked_transfer_encoding off;
+
+  ssl on;
+  ssl_certificate /etc/nginx/ssl/cdn.pem;
+  ssl_certificate_key /etc/nginx/ssl/cdn.key;
+  #ssl_client_certificate /etc/nginx/ssl/cdn.ca;
+
+  ssl_prefer_server_ciphers on;
+  ssl_ciphers ECDH+AESGCM:ECDH+AES256:ECDH+AES128:DH+3DES:!ADH:!AECDH:!MD5;
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+  ssl_session_cache shared:SSL:20m;
+  ssl_session_timeout 180m;
+
+  root /srv/www/cdn/;
+
+  location ~ /index.php$ {
+      include /etc/nginx/fastcgi_params;
+      fastcgi_keep_conn on;
+      fastcgi_param  HTTP_ACCEPT_ENCODING      "";
+      fastcgi_intercept_errors on;
+
+      fastcgi_pass   127.0.0.1:9000;
+
+      fastcgi_index  index.php;
+      fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;
+  }
+
+  location / {
+      if ($request_uri !~ (/assets/)){
+          rewrite ^/(.*)$ /index.php?/$1 last;
+      }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
